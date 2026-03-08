@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculator</title>
+    <title>Calculator Plus</title>
     <style>
       :root {
         font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -16,14 +16,28 @@
         display: grid;
         place-items: center;
         background: radial-gradient(circle at top, #2a2f45 0%, #12151f 60%);
+        color: #f7f9ff;
+      }
+
+      .app {
+        width: min(95vw, 820px);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
 
       .calculator {
-        width: min(92vw, 360px);
         background: #1a1f2b;
         border-radius: 16px;
         padding: 16px;
         box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
+      }
+
+      .top-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        margin-bottom: 12px;
       }
 
       .display {
@@ -32,12 +46,17 @@
         border-radius: 10px;
         padding: 14px;
         box-sizing: border-box;
-        margin-bottom: 12px;
         background: #0f1320;
         color: #f7f9ff;
         text-align: right;
         font-size: 2rem;
         min-height: 68px;
+      }
+
+      .memory {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(40px, 1fr));
+        gap: 8px;
       }
 
       .buttons {
@@ -50,14 +69,14 @@
         border: none;
         border-radius: 10px;
         padding: 14px;
-        font-size: 1.1rem;
+        font-size: 1rem;
         cursor: pointer;
         background: #2d3448;
         color: #f7f9ff;
       }
 
       button:hover {
-        filter: brightness(1.1);
+        filter: brightness(1.08);
       }
 
       .operator {
@@ -76,74 +95,234 @@
       .zero {
         grid-column: span 2;
       }
+
+      .history {
+        background: #1a1f2b;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 20px 40px rgb(0 0 0 / 40%);
+      }
+
+      .history h2 {
+        margin: 0 0 10px;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .history-list {
+        margin: 0;
+        padding-left: 20px;
+        max-height: 220px;
+        overflow: auto;
+      }
+
+      .hint {
+        margin-top: 10px;
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
+
+      @media (min-width: 850px) {
+        .app {
+          grid-template-columns: 1.1fr 0.9fr;
+        }
+      }
     </style>
   </head>
   <body>
-    <main class="calculator" aria-label="Calculator">
-      <input class="display" id="display" type="text" value="0" readonly />
-      <div class="buttons">
-        <button type="button" class="clear" data-action="clear">C</button>
-        <button type="button" data-action="delete">⌫</button>
-        <button type="button" class="operator" data-value="/">÷</button>
-        <button type="button" class="operator" data-value="*">×</button>
+    <main class="app" aria-label="Calculator applicatie">
+      <section class="calculator" aria-label="Calculator">
+        <div class="top-row">
+          <input class="display" id="display" type="text" value="0" readonly />
+          <div class="memory">
+            <button type="button" data-action="memory-clear">MC</button>
+            <button type="button" data-action="memory-recall">MR</button>
+            <button type="button" data-action="memory-add">M+</button>
+            <button type="button" data-action="memory-subtract">M-</button>
+          </div>
+        </div>
 
-        <button type="button" data-value="7">7</button>
-        <button type="button" data-value="8">8</button>
-        <button type="button" data-value="9">9</button>
-        <button type="button" class="operator" data-value="-">−</button>
+        <div class="buttons">
+          <button type="button" class="clear" data-action="clear">C</button>
+          <button type="button" data-action="delete">⌫</button>
+          <button type="button" data-action="toggle-sign">±</button>
+          <button type="button" class="operator" data-value="/">÷</button>
 
-        <button type="button" data-value="4">4</button>
-        <button type="button" data-value="5">5</button>
-        <button type="button" data-value="6">6</button>
-        <button type="button" class="operator" data-value="+">+</button>
+          <button type="button" data-value="7">7</button>
+          <button type="button" data-value="8">8</button>
+          <button type="button" data-value="9">9</button>
+          <button type="button" class="operator" data-value="*">×</button>
 
-        <button type="button" data-value="1">1</button>
-        <button type="button" data-value="2">2</button>
-        <button type="button" data-value="3">3</button>
-        <button type="button" data-action="decimal">.</button>
+          <button type="button" data-value="4">4</button>
+          <button type="button" data-value="5">5</button>
+          <button type="button" data-value="6">6</button>
+          <button type="button" class="operator" data-value="-">−</button>
 
-        <button type="button" class="zero" data-value="0">0</button>
-        <button type="button" class="equal" data-action="calculate">=</button>
-      </div>
+          <button type="button" data-value="1">1</button>
+          <button type="button" data-value="2">2</button>
+          <button type="button" data-value="3">3</button>
+          <button type="button" class="operator" data-value="+">+</button>
+
+          <button type="button" class="zero" data-value="0">0</button>
+          <button type="button" data-action="decimal">.</button>
+          <button type="button" class="equal" data-action="calculate">=</button>
+        </div>
+        <p class="hint">Tip: gebruik ook toetsenbord (0-9, +, -, *, /, Enter, Backspace, c).</p>
+      </section>
+
+      <aside class="history" aria-label="Reken geschiedenis">
+        <h2>Geschiedenis</h2>
+        <ol id="historyList" class="history-list"></ol>
+        <button type="button" data-action="clear-history">Geschiedenis legen</button>
+      </aside>
     </main>
 
     <script>
       const display = document.getElementById('display');
       const buttons = document.querySelector('.buttons');
+      const historyList = document.getElementById('historyList');
+      const memoryButtons = document.querySelector('.memory');
+      const historyPanel = document.querySelector('.history');
+
       let expression = '';
+      let memoryValue = 0;
+
+      const operatorRegex = /[+\-*/]/;
 
       function updateDisplay(value) {
         display.value = value || '0';
       }
 
       function appendValue(value) {
+        if (display.value === 'Fout') {
+          expression = '';
+        }
         expression += value;
         updateDisplay(expression);
       }
 
-      function addDecimal() {
-        const parts = expression.split(/[+\-*/]/);
-        const currentNumber = parts[parts.length - 1];
-        if (!currentNumber.includes('.')) {
-          appendValue('.');
+      function splitIntoTokens(expr) {
+        const tokens = [];
+        let numberBuffer = '';
+
+        for (let i = 0; i < expr.length; i += 1) {
+          const char = expr[i];
+          const prev = expr[i - 1];
+
+          if (/[0-9.]/.test(char)) {
+            numberBuffer += char;
+            continue;
+          }
+
+          if (operatorRegex.test(char)) {
+            if (
+              char === '-' &&
+              (i === 0 || operatorRegex.test(prev))
+            ) {
+              numberBuffer += char;
+              continue;
+            }
+
+            if (!numberBuffer) {
+              return null;
+            }
+
+            tokens.push(numberBuffer, char);
+            numberBuffer = '';
+            continue;
+          }
+
+          return null;
         }
+
+        if (numberBuffer) tokens.push(numberBuffer);
+
+        return tokens;
+      }
+
+      function computeFromTokens(tokens) {
+        const working = [...tokens];
+
+        for (let i = 1; i < working.length - 1; ) {
+          const op = working[i];
+          if (op === '*' || op === '/') {
+            const left = Number(working[i - 1]);
+            const right = Number(working[i + 1]);
+            if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+            if (op === '/' && right === 0) return null;
+
+            const result = op === '*' ? left * right : left / right;
+            working.splice(i - 1, 3, String(result));
+            continue;
+          }
+          i += 2;
+        }
+
+        let result = Number(working[0]);
+        if (!Number.isFinite(result)) return null;
+
+        for (let i = 1; i < working.length - 1; i += 2) {
+          const op = working[i];
+          const value = Number(working[i + 1]);
+          if (!Number.isFinite(value)) return null;
+          if (op === '+') result += value;
+          if (op === '-') result -= value;
+        }
+
+        return Number.isFinite(result) ? result : null;
       }
 
       function safeEvaluate(expr) {
-        if (!expr || /[+\-*/.]$/.test(expr)) {
-          return expression;
-        }
+        if (!expr || operatorRegex.test(expr.at(-1))) return expression;
+        const tokens = splitIntoTokens(expr);
+        if (!tokens) return 'Fout';
 
-        try {
-          const result = Function(`"use strict"; return (${expr})`)();
-          if (Number.isFinite(result)) {
-            return String(result);
+        const result = computeFromTokens(tokens);
+        return result === null ? 'Fout' : String(result);
+      }
+
+      function addDecimal() {
+        const parts = expression.split(/[+\-*/]/);
+        const currentNumber = parts[parts.length - 1] ?? '';
+
+        if (!currentNumber.includes('.')) {
+          if (!currentNumber || currentNumber === '-') {
+            appendValue('0.');
+          } else {
+            appendValue('.');
           }
-        } catch {
-          return 'Fout';
+        }
+      }
+
+      function toggleSign() {
+        const match = expression.match(/(-?\d*\.?\d+)$/);
+        if (!match) {
+          if (!expression || operatorRegex.test(expression.at(-1))) {
+            appendValue('-');
+          }
+          return;
         }
 
-        return 'Fout';
+        const value = match[1];
+        const start = match.index;
+        const toggled = value.startsWith('-') ? value.slice(1) : `-${value}`;
+        expression = `${expression.slice(0, start)}${toggled}`;
+        updateDisplay(expression);
+      }
+
+      function getCurrentNumericValue() {
+        const value = Number(safeEvaluate(expression));
+        return Number.isFinite(value) ? value : 0;
+      }
+
+      function addToHistory(expr, result) {
+        const item = document.createElement('li');
+        item.textContent = `${expr} = ${result}`;
+        historyList.prepend(item);
+
+        while (historyList.children.length > 10) {
+          historyList.removeChild(historyList.lastElementChild);
+        }
       }
 
       buttons.addEventListener('click', (event) => {
@@ -154,7 +333,6 @@
         const action = button.dataset.action;
 
         if (value) {
-          if (display.value === 'Fout') expression = '';
           appendValue(value);
           return;
         }
@@ -166,11 +344,45 @@
           expression = expression.slice(0, -1);
           updateDisplay(expression);
         } else if (action === 'decimal') {
-          if (display.value === 'Fout') expression = '';
           addDecimal();
+        } else if (action === 'toggle-sign') {
+          toggleSign();
         } else if (action === 'calculate') {
+          const inputExpression = expression;
           expression = safeEvaluate(expression);
           updateDisplay(expression);
+
+          if (expression !== 'Fout' && inputExpression) {
+            addToHistory(inputExpression, expression);
+          }
+        }
+      });
+
+      memoryButtons.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const current = getCurrentNumericValue();
+
+        if (action === 'memory-clear') {
+          memoryValue = 0;
+        } else if (action === 'memory-recall') {
+          expression = String(memoryValue);
+          updateDisplay(expression);
+        } else if (action === 'memory-add') {
+          memoryValue += current;
+        } else if (action === 'memory-subtract') {
+          memoryValue -= current;
+        }
+      });
+
+      historyPanel.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+
+        if (button.dataset.action === 'clear-history') {
+          historyList.innerHTML = '';
         }
       });
 
@@ -178,13 +390,21 @@
         const allowed = /[0-9+\-*/.]/;
 
         if (event.key === 'Enter') {
+          event.preventDefault();
+          const inputExpression = expression;
           expression = safeEvaluate(expression);
           updateDisplay(expression);
+          if (expression !== 'Fout' && inputExpression) {
+            addToHistory(inputExpression, expression);
+          }
         } else if (event.key === 'Backspace') {
           expression = expression.slice(0, -1);
           updateDisplay(expression);
         } else if (event.key.toLowerCase() === 'c') {
           expression = '';
+          updateDisplay(expression);
+        } else if (event.key === 'm') {
+          expression = String(memoryValue);
           updateDisplay(expression);
         } else if (allowed.test(event.key)) {
           if (event.key === '.') {
